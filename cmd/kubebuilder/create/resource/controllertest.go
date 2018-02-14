@@ -123,10 +123,9 @@ var _ = Describe("{{ .Kind }} controller", func() {
             after := make(chan struct{})
             controller.AfterReconcile = func(key string, err error) {
                 defer func() {
+                    // Recover in case the key is reconciled multiple times
+                    defer func() { recover() }()
                     close(after)
-                    defer func() {
-                        recover()
-                    }()
                 }()
                 Expect(key).To(Equal(expectedKey))
                 Expect(err).ToNot(HaveOccurred())
